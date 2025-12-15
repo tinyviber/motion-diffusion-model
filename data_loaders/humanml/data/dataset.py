@@ -806,10 +806,12 @@ class HumanML3D(data.Dataset):
         self.mean_gpu = torch.tensor(self.mean).to(device)[None, :, None, None]
         self.std_gpu = torch.tensor(self.std).to(device)[None, :, None, None]
 
-        assert len(self.t2m_dataset) > 1, 'You loaded an empty dataset, ' \
-                                          'it is probably because your data dir has only texts and no motions.\n' \
-                                          'To train and evaluate MDM you should get the FULL data as described ' \
-                                          'in the README file.'
+        assert len(self.t2m_dataset) > 1, (
+            'You loaded an empty dataset, '
+            'it is probably because your data dir has only texts and no motions.\n'
+            'To train and evaluate MDM you should get the FULL data as described '
+            'in the README file.'
+        )
 
     def __getitem__(self, item):
         return self.t2m_dataset.__getitem__(item)

@@ -3,6 +3,8 @@ import torch
 import utils.rotation_conversions as geometry
 
 
+import os
+
 from model.smpl import SMPL, JOINTSTYPE_ROOT
 # from .get_model import JOINTSTYPES
 JOINTSTYPES = ["a2m", "a2mpl", "smpl", "vibe", "vertices"]
@@ -12,7 +14,11 @@ class Rotation2xyz:
     def __init__(self, device, dataset='amass'):
         self.device = device
         self.dataset = dataset
-        self.smpl_model = SMPL().eval().to(device)
+        self.use_dummy = os.getenv("MDM_DUMMY_SMPL") == "1"
+        if self.use_dummy:
+            self.smpl_model = None
+        else:
+            self.smpl_model = SMPL().eval().to(device)
 
     def __call__(self, x, mask, pose_rep, translation, glob,
                  jointstype, vertstrans, betas=None, beta=0,
@@ -59,18 +65,23 @@ class Rotation2xyz:
             rotations = rotations[:, 1:]
 
         if betas is None:
-            betas = torch.zeros([rotations.shape[0], self.smpl_model.num_betas],
+            num_betas = 10 if self.use_dummy else self.smpl_model.num_betas
+            betas = torch.zeros([rotations.shape[0], num_betas],
                                 dtype=rotations.dtype, device=rotations.device)
             betas[:, 1] = beta
             # import ipdb; ipdb.set_trace()
-        out = self.smpl_model(body_pose=rotations, global_orient=global_orient, betas=betas)
+        if self.use_dummy:
+            joints = torch.zeros(len(rotations), rotations.shape[1] + 1, 3, device=x.device, dtype=x.dtype)
+            x_xyz = torch.zeros(nsamples, time, joints.shape[1], 3, device=x.device, dtype=x.dtype)
+        else:
+            out = self.smpl_model(body_pose=rotations, global_orient=global_orient, betas=betas)
 
-        # get the desirable joints
-        joints = out[jointstype]
+            # get the desirable joints
+            joints = out[jointstype]
 
-        x_xyz = torch.empty(nsamples, time, joints.shape[1], 3, device=x.device, dtype=x.dtype)
-        x_xyz[~mask] = 0
-        x_xyz[mask] = joints
+            x_xyz = torch.empty(nsamples, time, joints.shape[1], 3, device=x.device, dtype=x.dtype)
+            x_xyz[~mask] = 0
+            x_xyz[mask] = joints
 
         x_xyz = x_xyz.permute(0, 2, 3, 1).contiguous()
 
