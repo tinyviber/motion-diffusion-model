@@ -24,10 +24,10 @@ ftfy
 regex
 
 # Utilities
-tqdm==4.66.4
-gdown==4.7.1
-wandb==0.15.12
-typing-extensions==4.11.0
+tqdm
+gdown
+wandb
+typing-extensions
 
 # Git Dependencies
 git+https://github.com/openai/CLIP.git
