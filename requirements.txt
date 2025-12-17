@@ -14,7 +14,7 @@ h5py
 
 # Image & 3D Processing
 Pillow
-chumpy==0.71
+chumpy==0.70
 smplx==0.1.28
 trimesh
 
