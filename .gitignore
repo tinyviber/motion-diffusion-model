@@ -133,6 +133,7 @@ wandb/
 t2m/
 body_models/
 glove/
+web_app/outputs/
 slurm**/
 *.out
 *.err

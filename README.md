@@ -159,6 +159,27 @@ bash prepare/download_t2m_evaluators.sh
 ```
 </details>
 
+### Run the Gradio web demo (no Cog required)
+
+Launch a lightweight web UI without relying on Cog or Replicate runtimes:
+
+1. Install the extra dependencies (after creating the base environment):
+
+   ```bash
+   pip install -r web_app/requirements.txt
+   ```
+
+2. Make sure the HumanML3D checkpoint is available at the default path (`save/humanml_trans_enc_512/model000200000.pt`) or
+   point to your own file with the `--model-path` flag.
+
+3. Start the server:
+
+   ```bash
+   python -m web_app.app --host 0.0.0.0 --port 7860
+   ```
+
+4. Open the displayed URL in your browser to submit prompts and download either rendered MP4 clips or JSON motion exports.
+
 <details>
   <summary><b>Action to Motion</b></summary>
 
